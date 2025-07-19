@@ -79,9 +79,75 @@ int update_systems(ComponentStore* store){
 	update_health_system(store);
 }
 
+/*
+ * Enum: CompenentMask
+ * 
+ * Description:
+ *   Each enum represents a flag used to check if an entity has a component.
+ */
+typedef enum {
+	POSITION = 1<<0,
+	HEALTH = 1<<1,
+	WEAPON = 1<<2,
+	AI = 1<<3,
+} ComponentMask;
+
+/*
+ * Struct: EntityManager
+ * 
+ * Description:
+ *   EntityManager represents all the necessary fields for entity management
+ * 
+ * Members:
+ *   entities: an array of entityID
+ *   component_bitmask: an array of bitmasks, for a given element 
+ * 
+ * 
+ * 
+ */
 typedef struct{
+	EntityID entities[MAX_ENTITIES];
+	ComponentMask component_bitmask[MAX_ENTITIES];
 	int curEntity;
 } EntityManager;
+
+/*
+ * Name: create_Entity
+ *
+ * Description: 
+ *   Creates an entity and returns its ID.
+ *
+ * Parameters:
+ *   manager: EntityManager struct that will manage the created Entity.
+ * 
+ * Returns: 
+ *   Returns an EntityID for a newly created entity
+ * 
+ * Side Effects:
+ *   manager will track the new EntityID
+ */
+EntityID create_entity(EntityManager* manager){
+
+}
+
+/*
+ * Name: create_Entity
+ *
+ * Description: 
+ *   Creates an entity and returns its ID.
+ *
+ * Parameters:
+ *   manager: EntityManager struct that will manage the created Entity.
+ * 
+ * Returns: 
+ *   Returns an EntityID for a newly created entity
+ * 
+ * Side Effects:
+ *   manager will track the new EntityID
+ */
+void init_entity_manager(EntityManager* manager){
+
+}
 
 int init();
 int gameloop();
