@@ -106,14 +106,16 @@ typedef enum {
 typedef struct{
 	ComponentMask component_bitmask[MAX_ENTITIES];
 	bool active[MAX_ENTITIES];
-	int curEntity;
+	EntityID cur_entity;
+	EntityID free_entity_stack[MAX_ENTITIES];
+	int free_entity_head;
 } EntityManager;
 
 /*
  * Name: create_Entity
  *
  * Description: 
- *   Creates an entity and returns its ID.
+ *   Creates an entity and returns its ID. Will use a recycled entityID first.
  *
  * Parameters:
  *   manager: EntityManager struct that will manage the created Entity.
@@ -126,11 +128,38 @@ typedef struct{
  */
 EntityID create_entity(EntityManager* manager){
 	EntityID newID;
-	newID = manager->curEntity;
+	if(manager->free_entity_head>0){
+		newID = manager->free_entity_stack[manager->free_entity_head-1];
+		manager->free_entity_head--;
+	}else{
+		newID = manager->cur_entity;
+		manager->cur_entity++;
+	}
 	manager->component_bitmask[newID] = 0;
 	manager->active[newID] = 1;
-	manager->curEntity++;
 	return newID;
+}
+
+/*
+ * Name: delete_Entity
+ *
+ * Description: 
+ *   Removes an entity if it exists and frees the ID from the manager
+ *
+ * Parameters:
+ *   manager: EntityManager struct that entity belongs to.
+ * 
+ * Returns: 
+ *   void
+ * 
+ * Side Effects:
+ *   manager will have the entity removed.
+ */
+void delete_entity(EntityManager* manager, EntityID entity){
+	manager->active[entity] = 0;
+	manager->component_bitmask[entity] = 0;
+	manager->free_entity_stack[manager->free_entity_head] = entity;
+	manager->free_entity_head++;
 }
 
 /*
@@ -149,7 +178,8 @@ EntityID create_entity(EntityManager* manager){
  *   manager will track the new EntityID
  */
 void init_entity_manager(EntityManager* manager){
-	manager->curEntity = 0;
+	manager->cur_entity = 0;
+	manager->free_entity_head = 0;
 	for (int i = 0; i < MAX_ENTITIES; i++){
 		manager->active[i] = 0;
 		manager->component_bitmask[i] = 0;
@@ -164,6 +194,23 @@ double last_tick_time;
 ComponentStore global_store;
 EntityManager global_manager;
 int tick_counter;
+
+void entity_manager_test(){
+	printf("Zero entities added, %i found\n", global_manager.cur_entity);
+	EntityID test1 = create_entity(&global_manager);
+	printf("Adding an entity, ID is: %i\n", test1);
+	EntityID test2 = create_entity(&global_manager);
+	printf("Adding an entity, ID is: %i\n", test2);
+	EntityID test3 = create_entity(&global_manager);
+	printf("Adding an entity, ID is: %i\n", test3);
+
+	printf("Deleting an entity, ID is: %i\n", test1);
+	delete_entity(&global_manager, test1);
+
+	EntityID test4 = create_entity(&global_manager);
+	printf("Adding an entity, ID is: %i\n", test4);
+	printf("ID %i and ID %i should be identical\n", test1, test4);
+}
 
 int draw(){
 	char tick_str[20];
@@ -186,6 +233,7 @@ int init(){
 	SearchAndSetResourceDir("resources");
 	init_entity_manager(&global_manager);
 	tick_counter = 0;
+	entity_manager_test();
 	return 0;
 }
 
