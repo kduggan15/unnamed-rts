@@ -163,6 +163,48 @@ void delete_entity(EntityManager* manager, EntityID entity){
 }
 
 /*
+ * Name: add_component
+ *
+ * Description: 
+ *   Adds a component to an entity on the entity_manager
+ *
+ * Parameters:
+ *   manager: EntityManager struct that entity belongs to.
+ *   entity: EntityID of the entity that will have the component added
+ *   component: Component enum to be added to the entity
+ * 
+ * Returns: 
+ *   void
+ * 
+ * Side Effects:
+ *   manager will have the entity updated.
+ */
+void add_component(EntityManager* manager, EntityID entity, ComponentMask component){
+	manager->component_bitmask[entity] |= component;
+}
+
+/*
+ * Name: remove_component
+ *
+ * Description: 
+ *   removes a component to an entity on the entity_manager
+ *
+ * Parameters:
+ *   manager: EntityManager struct that entity belongs to.
+ *   entity: EntityID of the entity that will have the component added
+ *   component: Component enum to be removed from the entity
+ * 
+ * Returns: 
+ *   void
+ * 
+ * Side Effects:
+ *   manager will have the entity updated.
+ */
+void remove_component(EntityManager* manager, EntityID entity, ComponentMask component){
+	
+	manager->component_bitmask[entity] &= ~component;
+}
+/*
  * Name: init_entity_manager
  *
  * Description: 
