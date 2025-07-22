@@ -99,15 +99,13 @@ typedef enum {
  *   EntityManager represents all the necessary fields for entity management
  * 
  * Members:
- *   entities: an array of entityID
- *   component_bitmask: an array of bitmasks, for a given element 
- * 
- * 
- * 
+ *  component_bitmask: an array of bitmasks, for a given element indicicates what components the entity has.
+ *  active: array of bools indicating if an entity is active.
+ *  curEntity: an integer that keeps track of the highest 
  */
 typedef struct{
-	EntityID entities[MAX_ENTITIES];
 	ComponentMask component_bitmask[MAX_ENTITIES];
+	bool active[MAX_ENTITIES];
 	int curEntity;
 } EntityManager;
 
@@ -127,11 +125,16 @@ typedef struct{
  *   manager will track the new EntityID
  */
 EntityID create_entity(EntityManager* manager){
-
+	EntityID newID;
+	newID = manager->curEntity;
+	manager->component_bitmask[newID] = 0;
+	manager->active[newID] = 1;
+	manager->curEntity++;
+	return newID;
 }
 
 /*
- * Name: create_Entity
+ * Name: init_entity_manager
  *
  * Description: 
  *   Creates an entity and returns its ID.
@@ -146,7 +149,11 @@ EntityID create_entity(EntityManager* manager){
  *   manager will track the new EntityID
  */
 void init_entity_manager(EntityManager* manager){
-
+	manager->curEntity = 0;
+	for (int i = 0; i < MAX_ENTITIES; i++){
+		manager->active[i] = 0;
+		manager->component_bitmask[i] = 0;
+	}
 }
 
 int init();
@@ -155,6 +162,7 @@ int cleanup();
 double last_frame_time;
 double last_tick_time;
 ComponentStore global_store;
+EntityManager global_manager;
 int tick_counter;
 
 int draw(){
@@ -176,12 +184,13 @@ int init(){
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 	InitWindow(1280, 800, "Hello Raylib");
 	SearchAndSetResourceDir("resources");
+	init_entity_manager(&global_manager);
 	tick_counter = 0;
 	return 0;
 }
 
 int gameloop(){
-	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
+	while (!WindowShouldClose())
 	{
 		// drawing
 		last_frame_time = GetFrameTime();
