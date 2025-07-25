@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "raymath.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <stdio.h>
 
@@ -25,21 +26,26 @@ typedef enum {
 	COMPONENT_POSITION = 1<<0,
 	COMPONENT_MOVEMENT = 1<<1,
 	COMPONENT_UNIT = 1<<2,
-	COMPONENT_WEAPON = 1<<3
+	COMPONENT_WEAPON = 1<<3,
+	COMPONENT_RENDER = 1<<4
 } ComponentMask;
 
 // PositionComponent
 typedef struct {
 	EntityID entity_id;
-	Vector2 pos;
-	Vector2 dpos;
+	int x;
+	int y;
 } PositionComponent;
 
 // MovementComponent
 // Movement is accomplished by having a final location and moving towards it each update.
 typedef struct {
 	EntityID entity_id;
-	Vector2 destination;
+	int dest_x;
+	int dest_y;
+	Vector2 velocity;
+	Vector2 coordinates;//float equivalent of position for entities that can move
+	float progress; // For cases where multiple ticks are required to move a single tile. 1.0 represents a complete move.
 } MovementComponent;
 
 // UnitComponent
@@ -59,6 +65,10 @@ typedef struct {
 	int range;
 	int damage;
 } WeaponComponent;
+
+typedef struct {
+	EntityID entity_ID;
+} RenderComponent;
 
 /*
  * Struct: EntityManager
@@ -84,11 +94,13 @@ typedef struct{
 	MovementComponent movement[MAX_ENTITIES];
 	UnitComponent units[MAX_ENTITIES];
 	WeaponComponent weapons[MAX_ENTITIES];
+	RenderComponent renderables[MAX_ENTITIES];
 
 	int num_positions;
 	int num_movement;
 	int num_units;
 	int num_weapons;
+	int num_renderables;
 } EntityManager;
 
 /*
@@ -212,38 +224,60 @@ void init_entity_manager(EntityManager* manager){
 void update_position_system(EntityManager* manager){
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
 		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_POSITION)){
-			manager->positions[e].pos.x+=manager->positions[e].dpos.x;
-			manager->positions[e].pos.y+=manager->positions[e].dpos.y;
+			//if it has a movement component, update the position
+			if(manager->component_bitmask[e] & COMPONENT_MOVEMENT){
+				manager->positions[e].x = (int)manager->movement[e].coordinates.x;
+				manager->positions[e].y = (int)manager->movement[e].coordinates.y;
+				printf("Update positions\n");
+			}
 		}
 	}
 }
 void update_movement_system(EntityManager* manager){
+	char str[20];
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_UNIT)){
+		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_MOVEMENT)){
+			//Calculate velocity
+			Vector2 vel;
+			Vector2 dest = {manager->movement[e].dest_x, manager->movement[e].dest_y};//position vector
+			
+			sprintf(str, "%i", e);
+			printf("Update movement\n");
+			vel = Vector2Subtract(dest, manager->movement[e].coordinates);
+			if(Vector2Length(vel)<manager->units[e].speed+.1){
+				manager->movement[e].coordinates=dest;
+			}
+			vel = Vector2Normalize(vel);
+			vel = Vector2Scale(vel,manager->units[e].speed);
+			printf("%f,%f\n towards %f, %f",vel.x,vel.y, dest.x,dest.y);
+			//update coordinates
+			
+			manager->movement[e].coordinates = Vector2Add(manager->movement[e].coordinates, vel);
 		}
 	}
 }
 void update_unit_system(EntityManager* manager){
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		Vector2 pos;
-		Vector2 mov;
-		Vector2 dpos;
-		pos.x = manager->positions[e].pos.x;
-		pos.y = manager->positions[e].pos.y;
+		char str[20];
+		int pos_x;
+		int pos_y;
+		int dest_x;
+		int dest_y;
+		//Vector2 velocity;
+		pos_x = manager->positions[e].x;
+		pos_y = manager->positions[e].y;
+		dest_x = manager->movement[e].dest_x;
+		dest_y = manager->movement[e].dest_y;
 		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_UNIT)){//True if entity is active, and entity has AI
 			switch (manager->units->mode)
 			{
 			case AI_WANDER:
 				
-				if(pos.x!=mov.x && pos.x!=mov.x){
-					if(pos.x<mov.x)
-						dpos.x=1;
-					else
-						dpos.x=-1;
-					if(pos.x<mov.x)
-						dpos.x=1;
-					else
-						dpos.x=-1;
+				if(pos_x==dest_x && pos_y==dest_y){
+					//sprintf(str, "%i", e);
+					printf("New wander\n");
+					manager->movement[e].dest_x = GetRandomValue(0,1280);
+					manager->movement[e].dest_y = GetRandomValue(0,800);
 				}
 				break;
 			
@@ -251,7 +285,8 @@ void update_unit_system(EntityManager* manager){
 				break;
 			}
 		}
-		manager->positions->dpos = dpos;
+		//manager->positions[e].dpos = dpos;
+		//manager->movement[e].destination = mov;
 	}
 }
 void update_weapon_system(EntityManager* manager){
@@ -263,6 +298,7 @@ void update_weapon_system(EntityManager* manager){
 
 int update_systems(EntityManager* manager){
 	update_unit_system(manager);
+	update_movement_system(manager);
 	update_position_system(manager);
 }
 
@@ -281,8 +317,14 @@ void entity_manager_test(){
 	EntityID test2 = create_entity(&global_manager);
 	printf("Adding an entity, ID is: %i\n", test2);
 	
-	add_component(&global_manager,test1,COMPONENT_UNIT|COMPONENT_POSITION);
+	add_component(&global_manager,test1,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT);
+	add_component(&global_manager,test2,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT);
+
+	global_manager.units[test1].speed=1;
+	global_manager.units[test2].speed=3;
+
 	global_manager.units[test1].mode=AI_WANDER;
+	global_manager.units[test2].mode=AI_WANDER;
 }
 
 int draw(){
@@ -299,7 +341,9 @@ int draw(){
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
 		if(global_manager.active[e]){
 			sprintf(tick_str, "%i", e);
-			DrawText(tick_str, global_manager.positions[e].pos.x,global_manager.positions[e].pos.y,20,WHITE);
+			//printf("entity 0 pos: %i, %i\n", global_manager.positions[0].x,global_manager.positions[0].y);
+			DrawText(tick_str, global_manager.positions[e].x,global_manager.positions[e].y,20,WHITE);
+			DrawText(tick_str, 10,10,20,WHITE);
 		}
 	}
 		
