@@ -4,6 +4,8 @@
 #include <stdio.h>
 
 #define MAX_ENTITIES 1024
+#define MAP_SIZE_X 800
+#define MAP_SIZE_Y 800
 
 typedef unsigned int EntityID;
 
@@ -45,7 +47,6 @@ typedef struct {
 	int dest_y;
 	Vector2 velocity;
 	Vector2 coordinates;//float equivalent of position for entities that can move
-	float progress; // For cases where multiple ticks are required to move a single tile. 1.0 represents a complete move.
 } MovementComponent;
 
 // UnitComponent
@@ -68,6 +69,7 @@ typedef struct {
 
 typedef struct {
 	EntityID entity_ID;
+	Color color;
 } RenderComponent;
 
 /*
@@ -228,7 +230,6 @@ void update_position_system(EntityManager* manager){
 			if(manager->component_bitmask[e] & COMPONENT_MOVEMENT){
 				manager->positions[e].x = (int)manager->movement[e].coordinates.x;
 				manager->positions[e].y = (int)manager->movement[e].coordinates.y;
-				printf("Update positions\n");
 			}
 		}
 	}
@@ -240,16 +241,13 @@ void update_movement_system(EntityManager* manager){
 			//Calculate velocity
 			Vector2 vel;
 			Vector2 dest = {manager->movement[e].dest_x, manager->movement[e].dest_y};//position vector
-			
-			sprintf(str, "%i", e);
-			printf("Update movement\n");
 			vel = Vector2Subtract(dest, manager->movement[e].coordinates);
-			if(Vector2Length(vel)<manager->units[e].speed+.1){
+			if(Vector2Length(vel)<manager->units[e].speed+.2){
 				manager->movement[e].coordinates=dest;
+				break;
 			}
 			vel = Vector2Normalize(vel);
 			vel = Vector2Scale(vel,manager->units[e].speed);
-			printf("%f,%f\n towards %f, %f",vel.x,vel.y, dest.x,dest.y);
 			//update coordinates
 			
 			manager->movement[e].coordinates = Vector2Add(manager->movement[e].coordinates, vel);
@@ -274,10 +272,8 @@ void update_unit_system(EntityManager* manager){
 			case AI_WANDER:
 				
 				if(pos_x==dest_x && pos_y==dest_y){
-					//sprintf(str, "%i", e);
-					printf("New wander\n");
-					manager->movement[e].dest_x = GetRandomValue(0,1280);
-					manager->movement[e].dest_y = GetRandomValue(0,800);
+					manager->movement[e].dest_x = GetRandomValue(0,MAP_SIZE_X);
+					manager->movement[e].dest_y = GetRandomValue(0,MAP_SIZE_Y);
 				}
 				break;
 			
@@ -325,6 +321,9 @@ void entity_manager_test(){
 
 	global_manager.units[test1].mode=AI_WANDER;
 	global_manager.units[test2].mode=AI_WANDER;
+	global_manager.renderables[test1].color=RED;
+	global_manager.renderables[test2].color=GREEN;
+
 }
 
 int draw(){
@@ -334,16 +333,13 @@ int draw(){
 	// Setup the back buffer for drawing (clear color and depth buffers)
 	ClearBackground(BLACK);
 
-	sprintf(tick_str, "%f", tick_counter/GetTime());
-	DrawText(tick_str, 200,200,20,WHITE);
-
 	//draw all active entities
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
 		if(global_manager.active[e]){
-			sprintf(tick_str, "%i", e);
+			//sprintf(tick_str, "%i", e);
 			//printf("entity 0 pos: %i, %i\n", global_manager.positions[0].x,global_manager.positions[0].y);
-			DrawText(tick_str, global_manager.positions[e].x,global_manager.positions[e].y,20,WHITE);
-			DrawText(tick_str, 10,10,20,WHITE);
+			//DrawText(tick_str, global_manager.positions[e].x,global_manager.positions[e].y,20,WHITE);
+			DrawPixel(global_manager.positions[e].x,global_manager.positions[e].y, global_manager.renderables[e].color);
 		}
 	}
 		
@@ -375,8 +371,6 @@ int gameloop(){
 			tick_counter++;
 			last_tick_time = GetTime();
 			update_systems(&global_manager);
-			//sprintf(str,"%i",global_manager.positions[0].x);
-			//printf(str);
 		}
 		draw();
 		
