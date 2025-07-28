@@ -8,7 +8,8 @@ A games programming project using raylib and raylib-quickstart.
  - Example with 2 entities wandering at different speeds
 
 # Wishlist:
- - Unit types: Civilian, Soldier, Zombie
+ - Break up main into multiple files.
+ - Unit types: Civilian, Soldier, Zombie.
  - More AI behaviors including attacking and running.
  - 2D rendering system + map view
  - World with obstacles

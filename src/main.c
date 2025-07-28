@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include <stdio.h>
+#include <string.h>
 
 #define MAX_ENTITIES 1024
 #define MAP_SIZE_X 800
@@ -32,6 +33,19 @@ typedef enum {
 	COMPONENT_RENDER = 1<<4
 } ComponentMask;
 
+/*
+ * Enum: Player
+ * 
+ * Description:
+ *   Players 1-4
+ */
+typedef enum{
+	PLAYER_1,
+	PLAYER_2,
+	PLAYER_3,
+	PLAYER_4,
+} Player;
+
 // PositionComponent
 typedef struct {
 	EntityID entity_id;
@@ -57,6 +71,7 @@ typedef struct {
 	int speed;
 	AIMode mode;
 	Faction fac;
+	Player player;
 } UnitComponent;
 
 //WeaponComponent
@@ -306,24 +321,35 @@ double last_tick_time;
 EntityManager global_manager;
 int tick_counter;
 
-void entity_manager_test(){
-	printf("Zero entities added, %i found\n", global_manager.cur_entity);
-	EntityID test1 = create_entity(&global_manager);
-	printf("Adding an entity, ID is: %i\n", test1);
-	EntityID test2 = create_entity(&global_manager);
-	printf("Adding an entity, ID is: %i\n", test2);
+EntityID create_zombie(EntityManager* manager, Player player, int x, int y){
+	EntityID e = create_entity(manager);
+	add_component(manager,e,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT|COMPONENT_WEAPON|COMPONENT_RENDER);
+	manager->active[e] = true;
+
+	manager->positions[e].x = x;
+	manager->positions[e].y = y;
+
+	manager->units[e].max_health = 100;
+	manager->units[e].current_health=100;
+	manager->units[e].fac = FACTION_ZOMBIE;
+	manager->units[e].speed = 3;
+	manager->units[e].player = player;
+	manager->weapons[e].damage = 10;
 	
-	add_component(&global_manager,test1,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT);
-	add_component(&global_manager,test2,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT);
+	strcpy(manager->weapons[e].name, "Claws");
+	manager->renderables[e].color=RED;
 
-	global_manager.units[test1].speed=1;
-	global_manager.units[test2].speed=3;
+	return e;
+}
 
-	global_manager.units[test1].mode=AI_WANDER;
-	global_manager.units[test2].mode=AI_WANDER;
-	global_manager.renderables[test1].color=RED;
-	global_manager.renderables[test2].color=GREEN;
-
+void entity_manager_test(){
+	#define zombies 10
+	EntityID es[zombies];
+	for (int i=0; i<zombies; i++){
+		es[i] = create_zombie(&global_manager, PLAYER_1, 10, 10);
+		global_manager.units[es[i]].mode = AI_WANDER;
+	}
+	
 }
 
 int draw(){
