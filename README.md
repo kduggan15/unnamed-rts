@@ -9,6 +9,9 @@ A games programming project using raylib and raylib-quickstart.
 
 # Wishlist:
  - Break up main into multiple files.
+ - Refactor to use component store instead of entity manager for components
+ - Refactor entity to use static globals instead of public facing struct
+ - Add hasEntity and 
  - Unit types: Civilian, Soldier, Zombie.
  - More AI behaviors including attacking and running.
  - 2D rendering system + map view
