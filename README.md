@@ -8,7 +8,6 @@ A games programming project using raylib and raylib-quickstart.
  - Example with 2 entities wandering at different speeds
 
 # Wishlist:
- - Break up main into multiple files.
  - Refactor to use component store instead of entity manager for components
  - Refactor entity to use static globals instead of public facing struct
  - Add hasEntity and 
