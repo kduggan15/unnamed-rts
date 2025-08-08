@@ -14,8 +14,6 @@ typedef enum{
 	FACTION_ZOMBIE
 } Faction;
 
-
-
 /*
  * Enum: Player
  * 
@@ -100,10 +98,10 @@ typedef struct {
 
 extern ComponentStore store;
 
-void update_position_system(EntityManager* manager);
-void update_movement_system(EntityManager* manager);
-void update_unit_system(EntityManager* manager);
-void update_weapon_system(EntityManager* manager);
-int update_systems(EntityManager* manager);
+void update_position_system();
+void update_movement_system();
+void update_unit_system();
+void update_weapon_system();
+int update_systems();
 
 #endif //COMPONENT_H

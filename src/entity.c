@@ -1,6 +1,10 @@
 #include "entity.h"
 
-
+static unsigned int component_bitmask[MAX_ENTITIES];
+static bool active[MAX_ENTITIES];
+static EntityID cur_entity;
+static EntityID free_entity_stack[MAX_ENTITIES];
+static int free_entity_head;
 
 /*
  * Name: create_Entity
@@ -17,17 +21,17 @@
  * Side Effects:
  *   manager will track the new EntityID
  */
-EntityID create_entity(EntityManager* manager){
+EntityID create_entity(){
 	EntityID newID;
-	if(manager->free_entity_head>0){
-		newID = manager->free_entity_stack[manager->free_entity_head-1];
-		manager->free_entity_head--;
+	if(  free_entity_head>0){
+		newID = free_entity_stack[free_entity_head-1];
+		free_entity_head--;
 	}else{
-		newID = manager->cur_entity;
-		manager->cur_entity++;
+		newID = cur_entity;
+		cur_entity++;
 	}
-	manager->component_bitmask[newID] = 0;
-	manager->active[newID] = 1;
+	  component_bitmask[newID] = 0;
+	  active[newID] = 1;
 	return newID;
 }
 
@@ -46,11 +50,11 @@ EntityID create_entity(EntityManager* manager){
  * Side Effects:
  *   manager will have the entity removed.
  */
-void delete_entity(EntityManager* manager, EntityID entity){
-	manager->active[entity] = 0;
-	manager->component_bitmask[entity] = 0;
-	manager->free_entity_stack[manager->free_entity_head] = entity;
-	manager->free_entity_head++;
+void delete_entity(EntityID entity){
+	active[entity] = 0;
+	component_bitmask[entity] = 0;
+	free_entity_stack[free_entity_head] = entity;
+	free_entity_head++;
 }
 
 /*
@@ -70,8 +74,8 @@ void delete_entity(EntityManager* manager, EntityID entity){
  * Side Effects:
  *   manager will have the entity updated.
  */
-void add_component(EntityManager* manager, EntityID entity, unsigned int component){
-	manager->component_bitmask[entity] |= component;
+void add_component(EntityID entity, unsigned int component){
+	component_bitmask[entity] |= component;
 	
 }
 
@@ -92,9 +96,9 @@ void add_component(EntityManager* manager, EntityID entity, unsigned int compone
  * Side Effects:
  *   manager will have the entity updated.
  */
-void remove_component(EntityManager* manager, EntityID entity, unsigned int component){
+void remove_component(EntityID entity, unsigned int component){
 	
-	manager->component_bitmask[entity] &= ~component;
+	component_bitmask[entity] &= ~component;
 }
 /*
  * Name: init_entity_manager
@@ -111,11 +115,19 @@ void remove_component(EntityManager* manager, EntityID entity, unsigned int comp
  * Side Effects:
  *   manager will track the new EntityID
  */
-void init_entity_manager(EntityManager* manager){
-	manager->cur_entity = 0;
-	manager->free_entity_head = 0;
+void init_entity_manager(){
+	cur_entity = 0;
+	free_entity_head = 0;
 	for (int i = 0; i < MAX_ENTITIES; i++){
-		manager->active[i] = 0;
-		manager->component_bitmask[i] = 0;
+		active[i] = 0;
+		component_bitmask[i] = 0;
 	}
+}
+
+bool entity_is_active(EntityID e){
+    return active[e];
+}
+
+bool entity_has_component(EntityID e, unsigned int component){
+    return component_bitmask[e] & component;
 }

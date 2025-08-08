@@ -15,13 +15,12 @@ int gameloop();
 int cleanup();
 double last_frame_time;
 double last_tick_time;
-EntityManager global_manager;
 int tick_counter;
 
-EntityID create_zombie(EntityManager* manager, Player player, int x, int y){
-	EntityID e = create_entity(manager);
-	add_component(manager,e,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT|COMPONENT_WEAPON|COMPONENT_RENDER);
-	manager->active[e] = true;
+EntityID create_zombie(Player player, int x, int y){
+	EntityID e = create_entity();
+	add_component(e,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT|COMPONENT_WEAPON|COMPONENT_RENDER);
+	entity_is_active(e);
 
 	store.positions[e].x = x;
 	store.positions[e].y = y;
@@ -43,7 +42,7 @@ void entity_manager_test(){
 	#define zombies 10
 	EntityID es[zombies];
 	for (int i=0; i<zombies; i++){
-		es[i] = create_zombie(&global_manager, PLAYER_1, 10, 10);
+		es[i] = create_zombie(PLAYER_1, 10, 10);
 		store.units[es[i]].mode = AI_WANDER;
 	}
 	
@@ -58,7 +57,7 @@ int draw(){
 
 	//draw all active entities
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		if(global_manager.active[e]){
+		if(entity_is_active(e)){
 			//sprintf(tick_str, "%i", e);
 			//printf("entity 0 pos: %i, %i\n", global_manager.positions[0].x,global_manager.positions[0].y);
 			//DrawText(tick_str, global_manager.positions[e].x,global_manager.positions[e].y,20,WHITE);
@@ -76,7 +75,7 @@ int init(){
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 	InitWindow(1280, 800, "Hello Raylib");
 	SearchAndSetResourceDir("resources");
-	init_entity_manager(&global_manager);
+	init_entity_manager();
 	tick_counter = 0;
 	entity_manager_test();
 	return 0;
@@ -93,7 +92,7 @@ int gameloop(){
 		if ((GetTime() - last_tick_time) > 1/20.0){
 			tick_counter++;
 			last_tick_time = GetTime();
-			update_systems(&global_manager);
+			update_systems();
 		}
 		draw();
 		

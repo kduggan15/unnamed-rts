@@ -2,21 +2,21 @@
 
 ComponentStore store;
 
-void update_position_system(EntityManager* manager){
+void update_position_system(){
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_POSITION)){
+		if(entity_is_active(e) && (entity_has_component(e,COMPONENT_POSITION))){
 			//if it has a movement component, update the position
-			if(manager->component_bitmask[e] & COMPONENT_MOVEMENT){
+			if(entity_has_component(e,COMPONENT_MOVEMENT)){
 				store.positions[e].x = (int)store.movement[e].coordinates.x;
 				store.positions[e].y = (int)store.movement[e].coordinates.y;
 			}
 		}
 	}
 }
-void update_movement_system(EntityManager* manager){
+void update_movement_system(){
 	char str[20];
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_MOVEMENT)){// isActive and hasComponent
+		if(entity_is_active(e) && (entity_has_component(e,COMPONENT_MOVEMENT))){// isActive and hasComponent
 			//Calculate velocity
 			Vector2 vel;
 			Vector2 dest = {store.movement[e].dest_x, store.movement[e].dest_y};//position vector
@@ -33,7 +33,7 @@ void update_movement_system(EntityManager* manager){
 		}
 	}
 }
-void update_unit_system(EntityManager* manager){
+void update_unit_system(){
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
 		char str[20];
 		int pos_x;
@@ -45,7 +45,7 @@ void update_unit_system(EntityManager* manager){
 		pos_y = store.positions[e].y;
 		dest_x = store.movement[e].dest_x;
 		dest_y = store.movement[e].dest_y;
-		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_UNIT)){//True if entity is active, and entity has AI
+		if(entity_is_active(e) && (entity_has_component(e,COMPONENT_UNIT))){//True if entity is active, and entity has AI
 			switch (store.units->mode)
 			{
 			case AI_WANDER:
@@ -64,15 +64,15 @@ void update_unit_system(EntityManager* manager){
 		//store.movement[e].destination = mov;
 	}
 }
-void update_weapon_system(EntityManager* manager){
+void update_weapon_system(){
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		if(manager->active[e] && (manager->component_bitmask[e] & COMPONENT_WEAPON)){
+		if(entity_is_active(e) && (entity_has_component(e,COMPONENT_WEAPON))){
 		}
 	}
 }
 
-int update_systems(EntityManager* manager){
-	update_unit_system(manager);
-	update_movement_system(manager);
-	update_position_system(manager);
+int update_systems(){
+	update_unit_system();
+	update_movement_system();
+	update_position_system();
 }
