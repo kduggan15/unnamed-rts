@@ -76,7 +76,6 @@ void delete_entity(EntityID entity){
  */
 void add_component(EntityID entity, unsigned int component){
 	component_bitmask[entity] |= component;
-	
 }
 
 /*

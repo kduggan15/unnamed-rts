@@ -11,5 +11,6 @@ void add_component(EntityID entity, unsigned int component);
 void remove_component(EntityID entity, unsigned int component);
 void init_entity_manager();
 bool entity_is_active(EntityID);
+bool entity_has_component(EntityID entity, unsigned int component);
 
 #endif// ENTITY_H

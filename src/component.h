@@ -6,7 +6,8 @@
 #include "raymath.h"
 
 typedef enum {
-	AI_WANDER
+	AI_WANDER,
+    AI_ATTACK,
 } AIMode;
 
 typedef enum{
@@ -26,6 +27,12 @@ typedef enum{
 	PLAYER_3,
 	PLAYER_4,
 } Player;
+
+typedef enum{
+    UNIT_INFECTED,
+    UNIT_CIVILIAN,
+    UNIT_SOLDIER
+}UnitType;
 
 /*
  * Enum: CompenentMask
@@ -66,6 +73,7 @@ typedef struct {
 	int speed;
 	AIMode mode;
 	Faction fac;
+    UnitType type;
 	Player player;
 } UnitComponent;
 
@@ -97,11 +105,5 @@ typedef struct {
 } ComponentStore;
 
 extern ComponentStore store;
-
-void update_position_system();
-void update_movement_system();
-void update_unit_system();
-void update_weapon_system();
-int update_systems();
 
 #endif //COMPONENT_H
