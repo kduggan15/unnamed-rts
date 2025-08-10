@@ -10,5 +10,6 @@ A games programming project using raylib and raylib-quickstart.
 # Wishlist:
  - Unit types: Civilian, Soldier, Zombie.
  - More AI behaviors including attacking and running.
+ - Create component store functions that return lists of all components
  - 2D camera system + map view
  - World with obstacles
