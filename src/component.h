@@ -71,6 +71,7 @@ typedef struct {
 	int current_health;
 	int max_health;
 	int speed;
+    int sight;
 	AIMode mode;
 	Faction fac;
     UnitType type;
@@ -83,6 +84,7 @@ typedef struct {
 	char name[30];
 	int range;
 	int damage;
+    EntityID target;
 } WeaponComponent;
 
 typedef struct {

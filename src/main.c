@@ -30,7 +30,7 @@ EntityID create_infected(Player player, int x, int y){
 	store.units[e].speed = 3;
 	store.units[e].player = player;
 	store.weapons[e].damage = 10;
-	
+	store.weapons[e].range = 2;
 	strcpy(store.weapons[e].name, "Claws");
 	store.renderables[e].color=RED;
 

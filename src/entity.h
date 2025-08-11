@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 #define MAX_ENTITIES 1024
+#define MAP_SIZE_X 512
+#define MAP_SIZE_Y 512
+
 typedef unsigned int EntityID;
 
 EntityID create_entity();
