@@ -101,6 +101,20 @@ void update_unit_system(){
         }
 	}
 }
+void render_system(){
+	BeginDrawing();
+
+	// Setup the back buffer for drawing (clear color and depth buffers)
+	ClearBackground(BLACK);
+
+	//draw all active entities
+	for(EntityID e = 0; e<MAX_ENTITIES;e++){
+		if(entity_is_active(e)){
+			DrawPixel(store.positions[e].x,store.positions[e].y, store.renderables[e].color);
+		}
+	}
+	EndDrawing();
+}
 
 int update_systems(){
 	update_unit_system();

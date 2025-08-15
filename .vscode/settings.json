@@ -12,5 +12,6 @@
 		"raylib.h": "c",
 		"component.h": "c",
 		"*.m": "c"
-	}
+	},
+	"makefile.configureOnOpen": false
 }

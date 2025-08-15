@@ -64,7 +64,7 @@ void entity_manager_test(){
 			es[i] = create_infected(PLAYER_1, i*5, i*5);
 		}
 		else{
-			es[i] = create_civilian(PLAYER_1, i*5, i*5);
+			es[i] = create_civilian(PLAYER_1, GetRandomValue(0,256), GetRandomValue(0,256));
 		}
 		
 		store.units[es[i]].mode = AI_WANDER;
@@ -72,29 +72,7 @@ void entity_manager_test(){
 	
 }
 
-int draw(){
-	char tick_str[20];
-	BeginDrawing();
-
-	// Setup the back buffer for drawing (clear color and depth buffers)
-	ClearBackground(BLACK);
-
-	//draw all active entities
-	for(EntityID e = 0; e<MAX_ENTITIES;e++){
-		if(entity_is_active(e)){
-			//sprintf(tick_str, "%i", e);
-			//printf("entity 0 pos: %i, %i\n", global_manager.positions[0].x,global_manager.positions[0].y);
-			//DrawText(tick_str, global_manager.positions[e].x,global_manager.positions[e].y,20,WHITE);
-			DrawPixel(store.positions[e].x,store.positions[e].y, store.renderables[e].color);
-		}
-	}
-		
-	// end the frame and get ready for the next one  (display frame, poll input, etc...)
-	EndDrawing();
-}
-
 int init(){
-	// Tell the window to use vsync and work on high DPI displays
 	SetRandomSeed(15);
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 	InitWindow(1280, 800, "Hello Raylib");
@@ -118,7 +96,7 @@ int gameloop(){
 			last_tick_time = GetTime();
 			update_systems();
 		}
-		draw();
+		render_system();
 		
 	}
 
