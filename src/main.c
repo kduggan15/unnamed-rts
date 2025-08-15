@@ -75,11 +75,19 @@ void entity_manager_test(){
 int init(){
 	SetRandomSeed(15);
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-	InitWindow(1280, 800, "Hello Raylib");
+	InitWindow(SCREEN_SIZE_X, SCREEN_SIZE_Y, "Hello Raylib");
 	SearchAndSetResourceDir("resources");
 	init_entity_manager();
 	tick_counter = 0;
 	entity_manager_test();
+
+	camera.target.x=10;
+	camera.target.y=10;
+	camera.offset.x = SCREEN_SIZE_X/2.0f;
+	camera.offset.y = SCREEN_SIZE_Y/2.0f;
+	camera.rotation = 0;
+	camera.zoom = 1;
+
 	return 0;
 }
 

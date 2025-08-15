@@ -3,8 +3,12 @@
 
 #include <stdbool.h>
 #define MAX_ENTITIES 1024
+
 #define MAP_SIZE_X 512
 #define MAP_SIZE_Y 512
+
+#define SCREEN_SIZE_X 1280
+#define SCREEN_SIZE_Y 800
 
 typedef unsigned int EntityID;
 
@@ -16,4 +20,4 @@ void init_entity_manager();
 bool entity_is_active(EntityID);
 bool entity_has_component(EntityID entity, unsigned int component);
 
-#endif// ENTITY_H
+#endif //ENTITY_H

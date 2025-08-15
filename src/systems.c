@@ -2,6 +2,9 @@
 #include "entity.h"
 #include "raylib.h"
 #include <stdio.h>
+
+Camera2D camera = {0};
+
 void die(EntityID subject){
     delete_entity(subject);
 }
@@ -101,18 +104,27 @@ void update_unit_system(){
         }
 	}
 }
+
+void register_unit_detail(EntityID e){
+
+}
+
 void render_system(){
 	BeginDrawing();
-
-	// Setup the back buffer for drawing (clear color and depth buffers)
 	ClearBackground(BLACK);
+
+	BeginMode2D(camera);
 
 	//draw all active entities
 	for(EntityID e = 0; e<MAX_ENTITIES;e++){
 		if(entity_is_active(e)){
 			DrawPixel(store.positions[e].x,store.positions[e].y, store.renderables[e].color);
+			//register_unit_detail(e);
 		}
 	}
+
+	EndMode2D();
+
 	EndDrawing();
 }
 
