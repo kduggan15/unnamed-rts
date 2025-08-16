@@ -6,6 +6,8 @@
 void update_movement_system();
 void update_unit_system();
 void render_system();
+void control_system();
+void init_render_system();
 int update_systems();
 
 extern Camera2D camera;
