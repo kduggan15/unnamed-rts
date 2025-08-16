@@ -92,9 +92,23 @@ int init(){
 }
 
 int gameloop(){
-	char str[20];
+	
 	while (!WindowShouldClose())
 	{
+		if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+		camera.target = Vector2Subtract(camera.target, GetMouseDelta());
+		if(camera.target.x<0)
+			camera.target.x=0;
+		if(camera.target.y<0)
+			camera.target.y=0;
+		if(camera.target.x>SCREEN_SIZE_X)
+			camera.target.x=SCREEN_SIZE_X;
+		if(camera.target.x>SCREEN_SIZE_Y)
+			camera.target.x=SCREEN_SIZE_Y;
+		}
+		camera.zoom = camera.zoom += GetMouseWheelMove() * 0.1f;
+		if(camera.zoom <0.2f) camera.zoom = 0.2f;
+
 		// drawing
 		last_frame_time = GetFrameTime();
 
