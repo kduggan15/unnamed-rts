@@ -10,7 +10,7 @@
 #define SCREEN_SIZE_X 1280
 #define SCREEN_SIZE_Y 800
 
-typedef unsigned int EntityID;
+typedef int EntityID;
 
 EntityID create_entity();
 void delete_entity(EntityID entity);

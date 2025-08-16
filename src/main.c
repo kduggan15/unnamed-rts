@@ -80,14 +80,7 @@ int init(){
 	init_entity_manager();
 	tick_counter = 0;
 	entity_manager_test();
-
-	camera.target.x=10;
-	camera.target.y=10;
-	camera.offset.x = SCREEN_SIZE_X/2.0f;
-	camera.offset.y = SCREEN_SIZE_Y/2.0f;
-	camera.rotation = 0;
-	camera.zoom = 1;
-
+	init_render_system();
 	return 0;
 }
 
@@ -95,20 +88,8 @@ int gameloop(){
 	
 	while (!WindowShouldClose())
 	{
-		if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
-		camera.target = Vector2Subtract(camera.target, GetMouseDelta());
-		if(camera.target.x<0)
-			camera.target.x=0;
-		if(camera.target.y<0)
-			camera.target.y=0;
-		if(camera.target.x>SCREEN_SIZE_X)
-			camera.target.x=SCREEN_SIZE_X;
-		if(camera.target.x>SCREEN_SIZE_Y)
-			camera.target.x=SCREEN_SIZE_Y;
-		}
-		camera.zoom = camera.zoom += GetMouseWheelMove() * 0.1f;
-		if(camera.zoom <0.2f) camera.zoom = 0.2f;
-
+		
+		control_system();
 		// drawing
 		last_frame_time = GetFrameTime();
 
