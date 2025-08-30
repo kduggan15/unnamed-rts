@@ -2,16 +2,77 @@
 #include "entity.h"
 #include "raylib.h"
 #include <stdio.h>
+#include <string.h>
 
 Camera2D camera = {0};
 
+EntityID create_infected(Player player, int x, int y){
+	EntityID e = create_entity();
+	add_component(e,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT|COMPONENT_WEAPON|COMPONENT_RENDER);
+	entity_is_active(e);
+
+	store.positions[e].x = store.movement[e].coordinates.x = store.movement[e].dest_x = x;
+	store.positions[e].y = store.movement[e].coordinates.y = store.movement[e].dest_y = y;
+
+	store.units[e].max_health = 100;
+	store.units[e].current_health=100;
+	store.units[e].fac = FACTION_ZOMBIE;
+	store.units[e].type = UNIT_INFECTED;
+	store.units[e].speed = 3;
+	store.units[e].player = player;
+	store.weapons[e].damage = 10;
+	store.weapons[e].range = 2;
+	strcpy(store.weapons[e].name, "Claws");
+	store.renderables[e].color=RED;
+
+	return e;
+}
+
+EntityID create_civilian(Player player, int x, int y){
+	EntityID e = create_entity();
+	add_component(e,COMPONENT_UNIT|COMPONENT_POSITION|COMPONENT_MOVEMENT|COMPONENT_RENDER);
+	entity_is_active(e);
+
+	store.positions[e].x = store.movement[e].coordinates.x = store.movement[e].dest_x = x;
+	store.positions[e].y = store.movement[e].coordinates.y = store.movement[e].dest_y = y;
+
+	store.units[e].max_health = 50;
+	store.units[e].current_health=50;
+	store.units[e].fac = FACTION_HUMAN;
+	store.units[e].type = UNIT_CIVILIAN;
+	store.units[e].speed = 2;
+	store.units[e].player = player;
+	store.renderables[e].color=GRAY;
+
+	return e;
+}
+
+void unit_set_status(EntityID e, Status status){
+	store.units[e].status |= STATUS_INFECTED;
+}
+
+void unit_remove_status(EntityID e, Status status){
+	store.units[e].status &= ~STATUS_INFECTED;
+}
+
+bool unit_has_status(EntityID e, Status status){
+	return store.units[e].status & status;
+}
+
 void die(EntityID subject){
-    delete_entity(subject);
+	if(unit_has_status(subject, STATUS_INFECTED)){
+		create_infected(PLAYER_1,store.positions[subject].x, store.positions[subject].y);
+	}
+    	delete_entity(subject);
 }
 
 void attack(EntityID subject, EntityID object){
     int damage = store.weapons[subject].damage;
     store.units[object].current_health-=damage;
+	if(store.units[subject].fac == FACTION_ZOMBIE && store.units[object].fac == FACTION_HUMAN){
+		unit_set_status(object, STATUS_INFECTED);
+	}
+		
 }
 
 void update_movement_system(){
@@ -113,7 +174,7 @@ void update_unit_system(){
 				break;
 			}
 		}
-        if(store.units[e].current_health<=0){
+        if(store.units[e].current_health<=0 && entity_is_active(e)){
             die(e);
         }
 	}

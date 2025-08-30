@@ -11,7 +11,8 @@
 	"files.associations": {
 		"raylib.h": "c",
 		"component.h": "c",
-		"*.m": "c"
+		"*.m": "c",
+		"raymath.h": "c"
 	},
 	"makefile.configureOnOpen": false
 }

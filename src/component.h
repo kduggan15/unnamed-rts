@@ -48,6 +48,10 @@ typedef enum {
 	COMPONENT_RENDER = 1<<4
 } ComponentMask;
 
+typedef enum {
+	STATUS_INFECTED = 1<<0, //For sick humans that will become infected on death
+} Status;
+
 // PositionComponent
 typedef struct {
 	EntityID entity_id;
@@ -72,6 +76,7 @@ typedef struct {
 	int max_health;
 	int speed;
     int sight;
+	Status status;
 	AIMode mode;
 	Faction fac;
     UnitType type;
